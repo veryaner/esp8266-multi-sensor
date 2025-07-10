@@ -58,8 +58,11 @@ bool connectMQTT()
         MQTT_DEBUG_PRINTLN(" connected!");
         mqttConnected = true;
 
-        // Subscribe to topics if needed
-        // mqttClient.subscribe(getTopicWithLocation("command").c_str());
+        // Subscribe to command topics
+        if (USE_RELAY)
+        {
+            mqttClient.subscribe(getTopicWithLocation(MQTT_TOPIC_RELAY_COMMAND).c_str());
+        }
 
         // Publish initial status
         mqttClient.publish(getTopicWithLocation(MQTT_TOPIC_STATUS).c_str(), "online");
@@ -72,6 +75,11 @@ bool connectMQTT()
         mqttConnected = false;
         return false;
     }
+}
+
+void subscribe(char *topic)
+{
+    mqttClient.subscribe(getTopicWithLocation(topic).c_str());
 }
 
 void mqttCallback(char *topic, byte *payload, unsigned int length)
@@ -87,9 +95,9 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 
     // Check if this is a relay command
     String topicStr = String(topic);
-    String relayTopic = getTopicWithLocation(MQTT_TOPIC_RELAY);
+    String relayCommandTopic = getTopicWithLocation(MQTT_TOPIC_RELAY_COMMAND);
 
-    if (topicStr == relayTopic)
+    if (topicStr == relayCommandTopic)
     {
         handleRelayCommand(message);
         return;
@@ -146,7 +154,7 @@ void handleRelayCommand(const char *message)
     // Set the relay state
     setRelayState(newState);
 
-    // Publish the new state back to confirm
+    // Publish the new state back to status topic (not command topic)
     publishRelayState();
 
     MQTT_DEBUG_PRINTF("Relay set to: %s\n", newState ? "ON" : "OFF");
@@ -169,13 +177,13 @@ void publishRelayState()
     String message;
     serializeJson(doc, message);
 
-    String topic = getTopicWithLocation(MQTT_TOPIC_RELAY);
+    String topic = getTopicWithLocation(MQTT_TOPIC_RELAY_STATUS);
     mqttClient.publish(topic.c_str(), message.c_str());
 
     MQTT_DEBUG_PRINTF("Published relay state: %s to topic: %s\n", message.c_str(), topic.c_str());
 }
 
-void publishSensorData()
+void publishData()
 {
     if (!mqttClient.connected())
     {
@@ -211,7 +219,6 @@ void publishSensorData()
         mqttClient.publish(topic.c_str(), sensorData.radar_presence ? "1" : "0");
     }
 
-    // Publish relay state
     if (USE_RELAY)
     {
         publishRelayState();

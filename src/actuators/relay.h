@@ -3,4 +3,5 @@
 void setRelayState(bool state);
 bool getRelayState();
 int getRelayPin();
-void relayInit(); 
+void relayInit();
+void relaySetup();

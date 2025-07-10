@@ -80,9 +80,9 @@
 #define DEBUG_MODE false
 
 // Individual debug categories (only active when DEBUG_MODE is true)
-#define DEBUG_SENSORS false     // Turn on/off sensor logs
+#define DEBUG_SENSORS false    // Turn on/off sensor logs
 #define DEBUG_WEB_SERVER false // Turn on/of web server debug
-#define DEBUG_MQTT true       // Turn on MQTT logs for troubleshooting
+#define DEBUG_MQTT true        // Turn on MQTT logs for troubleshooting
 #define DEBUG_MEMORY false     // Turn on/off memory logs
 #define DEBUG_WIFI false       // Turn on/off WiFi logs
 #define DEBUG_OTA false        // Turn on/off OTA logs
@@ -119,6 +119,8 @@
 #define MQTT_TOPIC_RADAR_PRESENCE "radar"
 #define MQTT_TOPIC_STATUS "status"
 #define MQTT_TOPIC_RELAY "relay"
+#define MQTT_TOPIC_RELAY_COMMAND "relay/command"
+#define MQTT_TOPIC_RELAY_STATUS "relay/status"
 #define MQTT_TOPIC_ALL "all"
 #define DEFAULT_USE_RADAR true
 // MQTT Settings

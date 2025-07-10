@@ -77,9 +77,12 @@ void setup()
     // Initialize pins
     DEBUG_PRINTLN("Initializing pins...");
     ledInit();
-    pirInit();
-    relayInit();
-    relayInit();
+    if(USE_RELAY)
+    {
+        relayInit();
+    }
+    
+    // relayInit();
     ESP.wdtFeed();
     DEBUG_PRINTLN("Pins initialized");
 
@@ -120,6 +123,12 @@ void setup()
     DEBUG_PRINTLN("PIR interrupt management enabled");
     ESP.wdtFeed();
 
+    //Connect to MQTT topic
+    if (USE_RELAY)
+    {
+        relaySetup();
+    }
+
     DEBUG_PRINTLN("Setup complete!");
 }
 
@@ -143,11 +152,11 @@ void loop()
         lastOtaCheck = currentTime;
     }
 
-    // Publish sensor data to MQTT
+    // Publish data to MQTT
     if (currentTime - lastMqttPublish >= MQTT_PUBLISH_INTERVAL)
     {
-        MQTT_DEBUG_PRINTLN("Publishing sensor data to MQTT...");
-        publishSensorData();
+        MQTT_DEBUG_PRINTLN("Publishing data to MQTT...");
+        publishData();
         lastMqttPublish = currentTime;
     }
 

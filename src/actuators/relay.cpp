@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "config.h"
 #include "actuators/relay.h"
+#include "comm/mqtt.h"
 
 bool relayState = false;
 
@@ -8,6 +9,10 @@ void relayInit()
 {
     pinMode(RELAY_PIN, OUTPUT);
     digitalWrite(RELAY_PIN, LOW);
+}
+void relaySetup()
+{
+    subscribe(MQTT_TOPIC_RELAY);
 }
 
 bool getRelayState()
