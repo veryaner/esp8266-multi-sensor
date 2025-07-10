@@ -13,6 +13,7 @@ extern unsigned long lastPirTrigger;
 extern bool ledBlink;
 extern unsigned long ledBlinkStart;
 
+
 void setupPIR()
 {
     pinMode(PIR_PIN, INPUT);
@@ -41,10 +42,6 @@ void IRAM_ATTR handlePirInterrupt()
     }
 }
 
-void pirInit()
-{
-    pinMode(PIR_PIN, INPUT);
-}
 
 void readPIR()
 {
