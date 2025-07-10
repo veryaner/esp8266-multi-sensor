@@ -1,6 +1,6 @@
 # ESP8266 Multi-Sensor Network with OTA and WiFi Hotspot
 
-A comprehensive ESP8266 RTOS SDK project that monitors multiple sensors (temperature, humidity, motion, light, radar presence) with Over-The-Air (OTA) updates, WiFi hotspot configuration, MQTT integration, relay control, and a modern web dashboard.
+A comprehensive ESP8266 project that monitors multiple sensors (temperature, humidity, motion, light, radar presence) with Over-The-Air (OTA) updates, WiFi hotspot configuration, MQTT integration, relay control, and a modern web dashboard.
 
 ## Features
 
