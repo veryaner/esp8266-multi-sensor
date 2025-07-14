@@ -8,7 +8,7 @@ WiFiManager wifiManager;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
-void setupWiFi()
+void setupWiFi(bool forceConfigPortal)
 {
     DEBUG_PRINTLN("Setting up WiFi...");
 
@@ -25,7 +25,6 @@ void setupWiFi()
     WiFiManagerParameter custom_location("location", "Device Location (e.g., living_room, bedroom)", config.location, 32);
     WiFiManagerParameter custom_mqtt_enabled("mqtt_enabled", "Enable MQTT (1=yes, 0=no)", config.mqtt_enabled ? "1" : "0", 2);
     WiFiManagerParameter custom_sensorless_mode("sensorless_mode", "Sensorless Mode (1=yes, 0=no)", config.sensorless_mode ? "1" : "0", 2);
-    WiFiManagerParameter custom_use_radar("use_radar", "Use Radar for Motion (1=yes, 0=no)", config.use_radar ? "1" : "0", 2);
 
     wifiManager.addParameter(&custom_mqtt_broker);
     wifiManager.addParameter(&custom_mqtt_port);
@@ -34,11 +33,20 @@ void setupWiFi()
     wifiManager.addParameter(&custom_location);
     wifiManager.addParameter(&custom_mqtt_enabled);
     wifiManager.addParameter(&custom_sensorless_mode);
-    wifiManager.addParameter(&custom_use_radar);
 
     wifiManager.setConfigPortalTimeout(180); // 3 minutes timeout
 
-    if (!wifiManager.autoConnect(WIFI_SSID, WIFI_PASSWORD))
+    bool connected = false;
+    if (forceConfigPortal)
+    {
+        DEBUG_PRINTLN("Forcing WiFiManager config portal...");
+        connected = wifiManager.startConfigPortal(WIFI_SSID, WIFI_PASSWORD);
+    }
+    else
+    {
+        connected = wifiManager.autoConnect(WIFI_SSID, WIFI_PASSWORD);
+    }
+    if (!connected)
     {
         DEBUG_PRINTLN("Failed to connect and hit timeout");
         ESP.restart();
@@ -51,7 +59,6 @@ void setupWiFi()
     strcpy(config.location, custom_location.getValue());
     config.mqtt_enabled = (strcmp(custom_mqtt_enabled.getValue(), "1") == 0);
     config.sensorless_mode = (strcmp(custom_sensorless_mode.getValue(), "1") == 0);
-    config.use_radar = (strcmp(custom_use_radar.getValue(), "1") == 0);
 
     saveConfig();
 
@@ -81,7 +88,7 @@ void setupWiFi()
     timeClient.setTimeOffset(0); // Adjust for your timezone
 
     // Setup mDNS
-    
+
     String sanitizedLocation = sanitizeLocation(String(config.location));
     deviceHostname = "esp8266-" + sanitizedLocation;
     Serial.print("Device Hostname: ");

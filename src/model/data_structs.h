@@ -1,6 +1,7 @@
 #pragma once
 
-struct ConfigData {
+struct ConfigData
+{
     char mqtt_broker[32];
     char mqtt_username[32];
     char mqtt_password[32];
@@ -8,16 +9,24 @@ struct ConfigData {
     int mqtt_port;
     bool mqtt_enabled;
     bool sensorless_mode;
-    bool use_radar;
+    //bool use_radar;
+
+    // Sensor enable flags (runtime configurable)
+    bool use_dht;
+    bool use_tsl2561;
+    bool use_pir;
+    bool use_ld2410;
+    bool use_relay;
 };
 
-struct SensorData {
+struct SensorData
+{
     float temperature;
     float humidity;
     bool motion;
     float lux;
     unsigned long timestamp;
-    
+
     bool pir_available;
     int pir_error_count;
     bool dht_available;
@@ -30,4 +39,4 @@ struct SensorData {
 };
 
 extern ConfigData config;
-extern SensorData sensorData; 
+extern SensorData sensorData;

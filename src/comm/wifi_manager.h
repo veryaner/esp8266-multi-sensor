@@ -12,7 +12,7 @@ extern String deviceHostname;
 extern WiFiManager wifiManager;
 extern NTPClient timeClient;
 
-void setupWiFi();
+void setupWiFi(bool forceConfigPortal);
 String sanitizeLocation(const String &location);
 
 #endif // WIFI_MANAGER_H 

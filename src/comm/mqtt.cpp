@@ -192,7 +192,7 @@ void publishData()
     }
 
     // Publish individual sensor data
-    if (USE_DHT && sensorData.dht_available)
+    if (config.use_dht && sensorData.dht_available)
     {
         String topic = getTopicWithLocation(MQTT_TOPIC_TEMPERATURE);
         mqttClient.publish(topic.c_str(), String(sensorData.temperature).c_str());
@@ -201,25 +201,25 @@ void publishData()
         mqttClient.publish(topic.c_str(), String(sensorData.humidity).c_str());
     }
 
-    if (USE_TSL2561 && sensorData.tsl_available)
+    if (config.use_tsl2561 && sensorData.tsl_available)
     {
         String topic = getTopicWithLocation(MQTT_TOPIC_LUMINESCENCE);
         mqttClient.publish(topic.c_str(), String(sensorData.lux).c_str());
     }
 
-    if (USE_PIR && sensorData.pir_available)
+    if (config.use_pir && sensorData.pir_available)
     {
         String topic = getTopicWithLocation(MQTT_TOPIC_MOTION);
         mqttClient.publish(topic.c_str(), sensorData.motion ? "1" : "0");
     }
 
-    if (USE_LD2410 && sensorData.radar_available)
+    if (config.use_ld2410 && sensorData.radar_available)
     {
         String topic = getTopicWithLocation(MQTT_TOPIC_RADAR_PRESENCE);
         mqttClient.publish(topic.c_str(), sensorData.radar_presence ? "1" : "0");
     }
 
-    if (USE_RELAY)
+    if (config.use_relay)
     {
         publishRelayState();
     }

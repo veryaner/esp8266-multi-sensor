@@ -510,6 +510,17 @@
                 <div class="sensor-status" id="dht11-status-humidity">Status: Unknown</div>
             </div>
 
+            <div class="card luminescence">
+                <div class="card-header">
+                    <div class="card-icon">☀️</div>
+                    <div class="card-title">Luminescence</div>
+                    <button class="reset-btn" onclick="resetSensor('tsl2561')" title="Reset TSL2561 Sensor">🔄</button>
+                </div>
+                <div class="card-value" id="luminescence">--</div>
+                <div class="card-unit">lux</div>
+                <div class="sensor-status" id="tsl2561-status">Status: Unknown</div>
+            </div>
+
             <div class="card motion" id="motion-card">
                 <div class="card-header">
                     <div class="card-icon">👁️</div>
@@ -525,17 +536,6 @@
                 <div class="sensor-status" id="pir-status">Status: Unknown</div>
             </div>
 
-            <div class="card luminescence">
-                <div class="card-header">
-                    <div class="card-icon">☀️</div>
-                    <div class="card-title">Luminescence</div>
-                    <button class="reset-btn" onclick="resetSensor('tsl2561')" title="Reset TSL2561 Sensor">🔄</button>
-                </div>
-                <div class="card-value" id="luminescence">--</div>
-                <div class="card-unit">lux</div>
-                <div class="sensor-status" id="tsl2561-status">Status: Unknown</div>
-            </div>
-
             <div class="card radar" id="radar-card">
                 <div class="card-header">
                     <div class="card-icon">🛰️</div>
@@ -548,6 +548,7 @@
                 </div>
                 <div class="card-unit" id="radar-source"></div>
             </div>
+
             <div class="card relay" id="relay-card">
                 <div class="card-header">
                     <div class="card-icon">🔌</div>
@@ -618,9 +619,28 @@
                             <label for="sensorless-mode">Sensorless Mode:</label>
                             <input type="checkbox" id="sensorless-mode">
                         </div>
+                    </div>
+                    <div class="config-section">
+                        <h3>Sensor Configuration</h3>
                         <div class="form-group">
-                            <label for="use-radar">Use Radar:</label>
-                            <input type="checkbox" id="use-radar">
+                            <label for="use-dht">Enable DHT11 (Temperature/Humidity):</label>
+                            <input type="checkbox" id="use-dht">
+                        </div>
+                        <div class="form-group">
+                            <label for="use-tsl2561">Enable TSL2561 (Light Sensor):</label>
+                            <input type="checkbox" id="use-tsl2561">
+                        </div>
+                        <div class="form-group">
+                            <label for="use-pir">Enable PIR (Motion Sensor):</label>
+                            <input type="checkbox" id="use-pir">
+                        </div>
+                        <div class="form-group">
+                            <label for="use-ld2410">Enable LD2410 (Radar Sensor):</label>
+                            <input type="checkbox" id="use-ld2410">
+                        </div>
+                        <div class="form-group">
+                            <label for="use-relay">Enable Relay:</label>
+                            <input type="checkbox" id="use-relay">
                         </div>
                     </div>
                     <div class="config-section">
@@ -1008,7 +1028,7 @@
                 // Get current config to determine current mode
                 const response = await fetch('/api/config');
                 const config = await response.json();
-                const currentMode = config.use_radar;
+                const currentMode = config.use_ld2410;
                 const newMode = !currentMode;
 
                 const modeText = newMode ? 'Radar (LD2410)' : 'PIR';
@@ -1018,7 +1038,10 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ use_radar: newMode })
+                        body: JSON.stringify({
+                            use_ld2410: newMode,
+                            use_pir: !newMode  // Disable the other motion sensor
+                        })
                     });
 
                     if (toggleResponse.ok) {
@@ -1038,10 +1061,12 @@
         }
 
         // Update the status display
-        function updateMotionSourceStatus(useRadar) {
+        function updateMotionSourceStatus(motionSource) {
             const statusElement = document.getElementById('motion-source-status');
             if (statusElement) {
-                statusElement.textContent = `Motion Source: ${useRadar ? 'Radar (LD2410)' : 'PIR'}`;
+                const sourceText = motionSource === "radar" ? "Radar (LD2410)" :
+                    motionSource === "pir" ? "PIR" : "None";
+                statusElement.textContent = `Motion Source: ${sourceText}`;
             }
         }
 
@@ -1123,7 +1148,10 @@
             if (mqttBroker) mqttBroker.textContent = config.mqtt_broker + ":" + config.mqtt_port;
             const location = document.getElementById('location');
             if (location) location.textContent = config.location;
-            updateMotionSourceStatus(config.use_radar);
+
+            // Update motion source status based on which sensors are enabled
+            const motionSource = config.use_ld2410 ? "radar" : (config.use_pir ? "pir" : "none");
+            updateMotionSourceStatus(motionSource);
         }
 
         function updateRelayCard(data) {
@@ -1194,7 +1222,11 @@
                 document.getElementById('mqtt-enabled').checked = config.mqtt_enabled || false;
                 document.getElementById('location').value = config.location || '';
                 document.getElementById('sensorless-mode').checked = config.sensorless_mode || false;
-                document.getElementById('use-radar').checked = config.use_radar || false;
+                document.getElementById('use-dht').checked = config.use_dht || false;
+                document.getElementById('use-tsl2561').checked = config.use_tsl2561 || false;
+                document.getElementById('use-pir').checked = config.use_pir || false;
+                document.getElementById('use-ld2410').checked = config.use_ld2410 || false;
+                document.getElementById('use-relay').checked = config.use_relay || false;
 
                 // Show the modal
                 document.getElementById('configModal').style.display = 'block';
@@ -1217,7 +1249,11 @@
             const mqttEnabled = document.getElementById('mqtt-enabled').checked;
             const location = document.getElementById('location').value;
             const sensorlessMode = document.getElementById('sensorless-mode').checked;
-            const useRadar = document.getElementById('use-radar').checked;
+            const useDht = document.getElementById('use-dht').checked;
+            const useTsl2561 = document.getElementById('use-tsl2561').checked;
+            const usePir = document.getElementById('use-pir').checked;
+            const useLd2410 = document.getElementById('use-ld2410').checked;
+            const useRelay = document.getElementById('use-relay').checked;
 
             try {
                 const response = await fetch('/api/config', {
@@ -1233,7 +1269,11 @@
                         mqtt_enabled: mqttEnabled,
                         location: location,
                         sensorless_mode: sensorlessMode,
-                        use_radar: useRadar
+                        use_dht: useDht,
+                        use_tsl2561: useTsl2561,
+                        use_pir: usePir,
+                        use_ld2410: useLd2410,
+                        use_relay: useRelay
                     })
                 });
 

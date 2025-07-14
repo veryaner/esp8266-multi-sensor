@@ -1,24 +1,26 @@
 #pragma once
 #ifndef CONFIG_H
 #define CONFIG_H
+
 // ============================================================================
 // SENSOR ENABLE FLAGS
 // ============================================================================
-#define USE_DHT 0
-#define USE_TSL2561 0
+#define USE_DHT 1
+#define USE_TSL2561 1
 #define USE_PIR 0
 #define USE_LD2410 1
-#define USE_RELAY 1
+#define USE_RELAY 0
 
 // ============================================================================
 // PIN CONFIGURATION
 // ============================================================================
 
 // Sensor pins (NodeMCU v2 pinout)
-#define DHT_PIN 14  // D5 on NodeMCU (GPIO14) - safer pin, avoid GPIO0
-#define PIR_PIN 16  // D0 on NodeMCU (GPIO16) - safe, no SPI conflicts
-#define LED_PIN 2   // Built-in LED (GPIO2/D4)
-#define RELAY_PIN 5 // D1  on NodeMCU (GPIO5), change as needed
+#define DHT_PIN 14   // D5 on NodeMCU (GPIO14)
+#define PIR_PIN 16   // D0 on NodeMCU (GPIO16) - safe, no SPI conflicts
+#define LED_PIN 2    // Built-in LED (GPIO2/D4)
+#define RELAY_PIN 5  // D1  on NodeMCU (GPIO5), change as needed
+#define BUTTON_PIN 0 // D3 on NodeMCU (GPIO0) - config button (active LOW)
 
 // I2C pins for TSL2561
 #define SDA_PIN 4 // D2 on NodeMCU (GPIO4)
@@ -80,12 +82,12 @@
 #define DEBUG_MODE false
 
 // Individual debug categories (only active when DEBUG_MODE is true)
-#define DEBUG_SENSORS false    // Turn on/off sensor logs
+#define DEBUG_SENSORS true    // Turn on/off sensor logs
 #define DEBUG_WEB_SERVER false // Turn on/of web server debug
-#define DEBUG_MQTT true        // Turn on MQTT logs for troubleshooting
+#define DEBUG_MQTT false       // Turn on MQTT logs for troubleshooting
 #define DEBUG_MEMORY false     // Turn on/off memory logs
-#define DEBUG_WIFI false       // Turn on/off WiFi logs
-#define DEBUG_OTA false        // Turn on/off OTA logs
+// #define DEBUG_WIFI false        // Turn on/off WiFi logs
+#define DEBUG_OTA false // Turn on/off OTA logs
 
 // Serial monitor baud rate
 #define SERIAL_BAUD 115200

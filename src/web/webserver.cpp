@@ -83,9 +83,11 @@ void setupWebServer()
         doc["sensorless_mode"] = config.sensorless_mode;
         
         String actualMotionSource = "none";
-        if (config.use_radar && sensorData.radar_available) {
+        if (config.use_ld2410 && sensorData.radar_available) {
             actualMotionSource = "radar";
-        } else if (sensorData.pir_available) {
+        }
+        else if (config.use_pir && sensorData.pir_available)
+        {
             actualMotionSource = "pir";
         }
         doc["motion_source"] = actualMotionSource;
@@ -141,25 +143,21 @@ void setupWebServer()
         server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
         
-        DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(512);
         doc["mqtt_broker"] = config.mqtt_broker;
         doc["mqtt_port"] = config.mqtt_port;
         doc["mqtt_username"] = config.mqtt_username;
         doc["location"] = config.location;
         doc["mqtt_enabled"] = config.mqtt_enabled;
         doc["sensorless_mode"] = config.sensorless_mode;
-        doc["use_radar"] = config.use_radar;
+
         
-        // Add current MQTT status
-        doc["mqtt_connected"] = mqttClient.connected();
-        doc["mqtt_client_id"] = MQTT_CLIENT_ID;
-        
-        // Add topic examples
-        doc["mqtt_topics"]["temperature"] = getTopicWithLocation(MQTT_TOPIC_TEMPERATURE);
-        doc["mqtt_topics"]["humidity"] = getTopicWithLocation(MQTT_TOPIC_HUMIDITY);
-        doc["mqtt_topics"]["motion"] = getTopicWithLocation(MQTT_TOPIC_MOTION);
-        doc["mqtt_topics"]["luminescence"] = getTopicWithLocation(MQTT_TOPIC_LUMINESCENCE);
-        doc["mqtt_topics"]["all"] = getTopicWithLocation(MQTT_TOPIC_ALL);
+        // Add sensor enable flags
+        doc["use_dht"] = config.use_dht;
+        doc["use_tsl2561"] = config.use_tsl2561;
+        doc["use_pir"] = config.use_pir;
+        doc["use_ld2410"] = config.use_ld2410;
+        doc["use_relay"] = config.use_relay;
         
         String response;
         serializeJson(doc, response);
@@ -215,8 +213,30 @@ void setupWebServer()
             config.sensorless_mode = doc["sensorless_mode"];
             configChanged = true;
         }
-        if (doc.containsKey("use_radar")) {
-            config.use_radar = doc["use_radar"];
+        
+        // Handle sensor enable flags
+        if (doc.containsKey("use_dht")) {
+            config.use_dht = doc["use_dht"];
+            configChanged = true;
+        }
+        
+        if (doc.containsKey("use_tsl2561")) {
+            config.use_tsl2561 = doc["use_tsl2561"];
+            configChanged = true;
+        }
+        
+        if (doc.containsKey("use_pir")) {
+            config.use_pir = doc["use_pir"];
+            configChanged = true;
+        }
+        
+        if (doc.containsKey("use_ld2410")) {
+            config.use_ld2410 = doc["use_ld2410"];
+            configChanged = true;
+        }
+        
+        if (doc.containsKey("use_relay")) {
+            config.use_relay = doc["use_relay"];
             configChanged = true;
         }
         
@@ -245,7 +265,6 @@ void setupWebServer()
         doc["location"] = config.location;
         doc["mqtt_enabled"] = config.mqtt_enabled;
         doc["sensorless_mode"] = config.sensorless_mode;
-        doc["use_radar"] = config.use_radar;
         
         // Pin assignments
         doc["pins"]["dht11"] = DHT_PIN;
@@ -292,7 +311,7 @@ void setupWebServer()
         doc["location"] = config.location;
         doc["mqtt_enabled"] = config.mqtt_enabled;
         doc["sensorless_mode"] = config.sensorless_mode;
-        doc["use_radar"] = config.use_radar;
+
         
         // Pin assignments
         doc["pins"]["dht11"] = DHT_PIN;
@@ -566,11 +585,11 @@ void setupWebServer()
         server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
         
         DynamicJsonDocument doc(256);
-        doc["use_dht"] = USE_DHT;
-        doc["use_tsl2561"] = USE_TSL2561;
-        doc["use_pir"] = USE_PIR;
-        doc["use_ld2410"] = USE_LD2410;
-        doc["use_relay"] = USE_RELAY;
+        doc["use_dht"] = config.use_dht;
+        doc["use_tsl2561"] = config.use_tsl2561;
+        doc["use_pir"] = config.use_pir;
+        doc["use_ld2410"] = config.use_ld2410;
+        doc["use_relay"] = config.use_relay;
         
         String response;
         serializeJson(doc, response);

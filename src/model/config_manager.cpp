@@ -18,7 +18,15 @@ void loadConfig()
         strcpy(config.location, "sensors");
         config.mqtt_enabled = ENABLE_MQTT;
         config.sensorless_mode = DEFAULT_SENSORLESS_MODE;
-        config.use_radar = DEFAULT_USE_RADAR;
+        // config.use_radar = DEFAULT_USE_RADAR;
+
+        // Initialize sensor enable flags from compile-time defines
+        config.use_dht = USE_DHT;
+        config.use_tsl2561 = USE_TSL2561;
+        config.use_pir = USE_PIR;
+        config.use_ld2410 = USE_LD2410;
+        config.use_relay = USE_RELAY;
+
         saveConfig();
     }
     config.sensorless_mode = DEFAULT_SENSORLESS_MODE;
@@ -27,7 +35,12 @@ void loadConfig()
     DEBUG_PRINTF("  Location: %s\n", config.location);
     DEBUG_PRINTF("  MQTT Enabled: %s\n", config.mqtt_enabled ? "Yes" : "No");
     DEBUG_PRINTF("  Sensorless Mode: %s\n", config.sensorless_mode ? "Yes" : "No");
-    DEBUG_PRINTF("  Use Radar: %s\n", config.use_radar ? "Yes" : "No");
+    DEBUG_PRINTF("  Sensors - DHT: %s, TSL: %s, PIR: %s, LD2410: %s, Relay: %s\n",
+                 config.use_dht ? "Yes" : "No",
+                 config.use_tsl2561 ? "Yes" : "No",
+                 config.use_pir ? "Yes" : "No",
+                 config.use_ld2410 ? "Yes" : "No",
+                 config.use_relay ? "Yes" : "No");
 }
 
 void saveConfig()
@@ -46,7 +59,12 @@ void printFullConfig()
     DEBUG_PRINTF("  Location: %s\n", config.location);
     DEBUG_PRINTF("  Enabled: %s\n", config.mqtt_enabled ? "Yes" : "No");
     DEBUG_PRINTF("  Sensorless Mode: %s\n", config.sensorless_mode ? "Yes" : "No");
-    DEBUG_PRINTF("  Use Radar: %s\n", config.use_radar ? "Yes" : "No");
+    DEBUG_PRINTF("  Sensors - DHT: %s, TSL: %s, PIR: %s, LD2410: %s, Relay: %s\n",
+                 config.use_dht ? "Yes" : "No",
+                 config.use_tsl2561 ? "Yes" : "No",
+                 config.use_pir ? "Yes" : "No",
+                 config.use_ld2410 ? "Yes" : "No",
+                 config.use_relay ? "Yes" : "No");
     // ... (add more as needed) ...
     DEBUG_PRINTLN("==========================\n");
 }

@@ -25,6 +25,30 @@ void ledInit()
     digitalWrite(LED_PIN, LOW);
 }
 
+// Add button initialization
+typedef enum
+{
+    NORMAL_MODE,
+    FORCE_CONFIG_MODE
+} BootMode;
+
+BootMode getBootMode()
+{
+    pinMode(BUTTON_PIN, INPUT_PULLUP); // Button active LOW
+    delay(10);                         // Debounce
+    if (digitalRead(BUTTON_PIN) == LOW)
+    {
+        return FORCE_CONFIG_MODE;
+    }
+    return NORMAL_MODE;
+}
+
+bool isConfigUninitialized()
+{
+    EEPROM.get(0, config);
+    return (config.mqtt_port <= 0 || strlen(config.mqtt_broker) == 0);
+}
+
 void setup()
 {
     // Initialize serial with a delay to let boot messages clear
@@ -53,10 +77,46 @@ void setup()
     ESP.wdtFeed();
     DEBUG_PRINTLN("EEPROM initialized");
 
+    // Check button for force config mode
+    BootMode bootMode = getBootMode();
+    if (bootMode == FORCE_CONFIG_MODE)
+    {
+        DEBUG_PRINTLN("Force config button pressed! Starting WiFiManager config portal...");
+        // Initialize pins
+        ledInit();
+        if (config.use_relay)
+        {
+            relayInit();
+        }
+        // Start WiFiManager config portal only
+        setupWiFi(true); // Pass a flag to force config portal
+        // After config, restart
+        DEBUG_PRINTLN("Config completed, restarting...");
+        delay(1000);
+        ESP.restart();
+        return;
+    }
+
     // Load configuration
     DEBUG_PRINTLN("Loading configuration...");
     loadConfig();
     ESP.wdtFeed();
+
+    // Check if config is uninitialized
+    if (isConfigUninitialized())
+    {
+        DEBUG_PRINTLN("No valid config found! Forcing WiFiManager config portal...");
+        ledInit();
+        if (config.use_relay)
+        {
+            relayInit();
+        }
+        setupWiFi(true); // Force config portal
+        DEBUG_PRINTLN("Config completed, restarting...");
+        delay(1000);
+        ESP.restart();
+        return;
+    }
 
     // Initialize LittleFS
     DEBUG_PRINTLN("Initializing LittleFS...");
@@ -77,11 +137,11 @@ void setup()
     // Initialize pins
     DEBUG_PRINTLN("Initializing pins...");
     ledInit();
-    if(USE_RELAY)
+    if (config.use_relay)
     {
         relayInit();
     }
-    
+
     // relayInit();
     ESP.wdtFeed();
     DEBUG_PRINTLN("Pins initialized");
@@ -101,7 +161,7 @@ void setup()
 
     // Setup WiFi
     DEBUG_PRINTLN("Setting up WiFi...");
-    setupWiFi();
+    setupWiFi(false);
     ESP.wdtFeed();
 
     // Setup web server
@@ -123,8 +183,8 @@ void setup()
     DEBUG_PRINTLN("PIR interrupt management enabled");
     ESP.wdtFeed();
 
-    //Connect to MQTT topic
-    if (USE_RELAY)
+    // Connect to MQTT topic
+    if (config.use_relay)
     {
         relaySetup();
     }

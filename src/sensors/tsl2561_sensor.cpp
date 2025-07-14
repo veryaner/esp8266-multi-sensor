@@ -8,7 +8,6 @@
 
 extern long currentTime;
 Adafruit_TSL2561_Unified tsl(TSL2561_ADDR_FLOAT, 12345);
-bool tslAvailable = false;
 int tslErrorCount = 0;
 unsigned long lastTslError = 0;
 
@@ -37,11 +36,12 @@ void setupTSL2561()
         SENSOR_DEBUG_PRINTF("Min Value: %.1f lux\n", sensor.min_value);
         SENSOR_DEBUG_PRINTF("Resolution: %.1f lux\n", sensor.resolution);
 
-        // Note: TSL2561 will be marked available only after successful reads
+        sensorData.tsl_available = true; // Mark as available after successful initialization
     }
     else
     {
         SENSOR_DEBUG_PRINTLN("TSL2561 light sensor not found! Check wiring.");
+        sensorData.tsl_available = false; // Mark as unavailable
     }
 }
 
@@ -53,23 +53,26 @@ void readTSL2561()
     if (event.light)
     {
         sensorData.lux = event.light;
+        sensorData.tsl_available = true; // Mark as available on successful read
         // Reset error counter on successful read
         if (tslErrorCount > 0)
         {
             SENSOR_DEBUG_PRINTF("TSL2561 working again. Error count reset from %d\n", tslErrorCount);
             tslErrorCount = 0;
+            sensorData.tsl_error_count = 0; // Also update the struct
         }
     }
     else
     {
         SENSOR_DEBUG_PRINTLN("TSL2561 sensor read failed");
         tslErrorCount++;
+        sensorData.tsl_error_count = tslErrorCount; // Update the struct
         lastTslError = currentTime;
 
         if (tslErrorCount >= SENSOR_ERROR_THRESHOLD)
         {
             SENSOR_DEBUG_PRINTF("TSL2561 sensor failed %d times. Marking as unavailable.\n", tslErrorCount);
-            tslAvailable = false;
+            sensorData.tsl_available = false; // Mark as unavailable
             sensorData.lux = 0.0;
         }
     }
