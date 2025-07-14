@@ -566,6 +566,7 @@
                 <button class="btn" onclick="restartDevice()">🔄 Restart Device</button>
                 <button class="btn btn-warning" onclick="resetWiFi()">📶 Reset WiFi Settings</button>
                 <button class="btn" onclick="window.open('/update', '_blank')">📤 OTA Update</button>
+                <button class="btn" onclick="window.open('/uploadfs', '_blank')">🗂️ Filesystem Update</button>
                 <button class="btn" onclick="showConfigModal()">⚙️ Show/Edit Config</button>
             </div>
             <div class="control-card">
@@ -576,10 +577,10 @@
                     Source</button>
                 <div class="sensorless-status" id="motion-source-status">Motion Source: ...</div>
             </div>
-            <div class="control-card">
-                <button class="btn" onclick="window.location.href='/update'">OTA Update</button>
-                <p>Upload new firmware to the device via web interface.</p>
-            </div>
+        </div>
+
+        <div id="firmware-version" style="text-align:center; color:#888; margin-top:20px;">
+            Firmware Version: <span id="fw-version-value">...</span>
         </div>
 
         <!-- Config Modal -->
@@ -725,6 +726,7 @@
                 updateDashboard(data);
                 updateRelayCard(data);
                 hideError();
+                document.getElementById('fw-version-value').textContent = data.firmware_version || 'unknown';
             } catch (error) {
                 console.error('Error loading sensor data:', error);
                 showError('Failed to load sensor data. Check if the device is connected.');

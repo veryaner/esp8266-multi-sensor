@@ -178,6 +178,8 @@ void setup()
     DEBUG_PRINTLN("Setting up OTA...");
     setupOTA();
     ESP.wdtFeed();
+    setupArduinoOTA();
+    ESP.wdtFeed();
 
     // PIR interrupt will be managed by updatePirInterrupt() based on sensor availability
     DEBUG_PRINTLN("PIR interrupt management enabled");
@@ -195,6 +197,7 @@ void setup()
 void loop()
 {
     currentTime = millis();
+    handleArduinoOTA();
 
     // Read sensors periodically (skip if in sensorless mode)
     if (!config.sensorless_mode && currentTime - lastSensorRead >= SENSOR_READ_INTERVAL)

@@ -712,6 +712,49 @@ curl -X POST http://[device-ip]/api/debug \
    - Select the `.bin` file from `.pio/build/nodemcuv2/firmware.bin`
    - Click "Upload Firmware"
 
+## OTA (Over-the-Air) Updates
+
+This project supports multiple OTA update methods for both firmware and filesystem (LittleFS):
+
+### 1. Web-based OTA (Firmware)
+- **Endpoint:** `/update`
+- **How to use:**
+  - Open `http://<device-ip>/update` in your browser.
+  - Upload a new firmware `.bin` file.
+  - Protected by password (`OTA_PASSWORD` in `config.h`).
+
+### 2. Web-based OTA (Filesystem)
+- **Endpoint:** `/uploadfs`
+- **How to use:**
+  - Open `http://<device-ip>/uploadfs` in your browser.
+  - Upload a LittleFS image (e.g., `littlefs.bin` from PlatformIO).
+  - Device flashes the new filesystem and reboots.
+  - **Note:** No password protection by default (can be added if needed).
+
+### 3. PlatformIO OTA (Firmware and Filesystem)
+- **Firmware OTA:**
+  - Command:
+    ```
+    pio run -t upload --upload-port=<DEVICE_IP>
+    ```
+  - Uses ArduinoOTA protocol (not HTTP).
+  - Password is `OTA_PASSWORD` in `config.h`.
+- **Filesystem OTA:**
+  - Command:
+    ```
+    pio run -t uploadfs --upload-port=<DEVICE_IP>
+    ```
+  - Also uses ArduinoOTA protocol.
+
+### 4. Web UI Integration
+- The dashboard's System Controls card includes:
+  - **OTA Update** button (links to `/update`)
+  - **Filesystem Update** button (links to `/uploadfs`)
+
+### Security Notes
+- The `/update` endpoint is password-protected.
+- The `/uploadfs` endpoint is open by default. Add authentication if you need to restrict access.
+
 ## Examples
 
 ### Python API Client

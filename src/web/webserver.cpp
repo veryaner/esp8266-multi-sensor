@@ -16,6 +16,7 @@
 #include "actuators/relay.h"
 #include "comm/ota.h"
 
+
 ESP8266WebServer server;
 
 void setupWebServer()
@@ -82,6 +83,7 @@ void setupWebServer()
         doc["wifi_rssi"] = WiFi.RSSI();
         doc["free_heap"] = ESP.getFreeHeap();
         doc["sensorless_mode"] = config.sensorless_mode;
+        doc["firmware_version"] = FIRMWARE_VERSION;
         
         String actualMotionSource = "none";
         if (config.use_ld2410 && sensorData.radar_available) {
@@ -648,6 +650,36 @@ void setupWebServer()
 
     // Register HTTP OTA endpoint (/update)
     setupOTA_HTTP(server);
+
+    // LittleFS upload form (GET)
+    server.on("/uploadfs", HTTP_GET, []()
+              { server.send(200, "text/html", "<form method='POST' action='/uploadfs' enctype='multipart/form-data'><input type='file' name='fs'><input type='submit' value='Upload FS'></form>"); });
+    // LittleFS upload handler (POST)
+    server.on("/uploadfs", HTTP_POST, []()
+              {
+        server.send(200, "text/plain", Update.hasError() ? "FS Update Failed" : "FS Update Success. Rebooting...");
+        delay(1000);
+        ESP.restart(); }, []()
+              {
+        HTTPUpload& upload = server.upload();
+        static size_t fsBytes = 0;
+        if (upload.status == UPLOAD_FILE_START) {
+            fsBytes = 0;
+            if (!Update.begin((size_t)upload.totalSize, U_FS)) {
+                Update.printError(Serial);
+            }
+        } else if (upload.status == UPLOAD_FILE_WRITE) {
+            if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+                Update.printError(Serial);
+            }
+            fsBytes += upload.currentSize;
+        } else if (upload.status == UPLOAD_FILE_END) {
+            if (Update.end(true)) {
+                Serial.printf("FS Update Success: %u bytes\n", fsBytes);
+            } else {
+                Update.printError(Serial);
+            }
+        } });
 
     server.begin();
     WEB_DEBUG_PRINTLN("Web server started");

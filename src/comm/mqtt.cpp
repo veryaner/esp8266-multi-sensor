@@ -238,6 +238,7 @@ void publishData()
     doc["uptime"] = millis();
     doc["free_heap"] = ESP.getFreeHeap();
     doc["wifi_rssi"] = WiFi.RSSI();
+    doc["firmware_version"] = FIRMWARE_VERSION;
 
     String message;
     serializeJson(doc, message);

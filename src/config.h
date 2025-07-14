@@ -2,6 +2,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define FIRMWARE_VERSION "1.0.0"
+
 // ============================================================================
 // SENSOR ENABLE FLAGS
 // ============================================================================
@@ -82,7 +84,7 @@
 #define DEBUG_MODE false
 
 // Individual debug categories (only active when DEBUG_MODE is true)
-#define DEBUG_SENSORS true    // Turn on/off sensor logs
+#define DEBUG_SENSORS true     // Turn on/off sensor logs
 #define DEBUG_WEB_SERVER false // Turn on/of web server debug
 #define DEBUG_MQTT false       // Turn on MQTT logs for troubleshooting
 #define DEBUG_MEMORY false     // Turn on/off memory logs
