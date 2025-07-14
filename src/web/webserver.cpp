@@ -14,6 +14,7 @@
 #include "sensors/sensor_manager.h"
 #include "model/config_manager.h"
 #include "actuators/relay.h"
+#include "comm/ota.h"
 
 ESP8266WebServer server;
 
@@ -644,6 +645,9 @@ void setupWebServer()
         serializeJson(responseDoc, response);
         
         server.send(200, "application/json", response); });
+
+    // Register HTTP OTA endpoint (/update)
+    setupOTA_HTTP(server);
 
     server.begin();
     WEB_DEBUG_PRINTLN("Web server started");
