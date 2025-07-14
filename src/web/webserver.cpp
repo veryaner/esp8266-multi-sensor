@@ -74,7 +74,7 @@ void setupWebServer()
         // Basic sensor data
         doc["temperature"] = sensorData.temperature;
         doc["humidity"] = sensorData.humidity;
-        doc["motion"] = sensorData.motion;
+        doc["motion"] = sensorData.presence;
         doc["luminescence"] = sensorData.lux;
         doc["timestamp"] = sensorData.timestamp;
         doc["uptime"] = millis();
@@ -91,7 +91,7 @@ void setupWebServer()
             actualMotionSource = "pir";
         }
         doc["motion_source"] = actualMotionSource;
-        doc["motion"] = (actualMotionSource == "radar") ? sensorData.radar_presence : sensorData.motion;
+        doc["motion"] = (actualMotionSource == "radar") ? sensorData.radar_presence : sensorData.presence;
         
         // Simple sensor status (avoid nested objects for now)
         doc["dht11_available"] = sensorData.dht_available;
@@ -441,7 +441,7 @@ void setupWebServer()
         // Add sensor data step by step
         doc["temperature"] = sensorData.temperature;
         doc["humidity"] = sensorData.humidity;
-        doc["motion"] = sensorData.motion;
+        doc["motion"] = sensorData.presence;
         doc["luminescence"] = sensorData.lux;
         doc["timestamp"] = sensorData.timestamp;
         doc["radar_presence"] = sensorData.radar_presence;

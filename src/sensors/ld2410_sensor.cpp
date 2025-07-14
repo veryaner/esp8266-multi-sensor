@@ -21,6 +21,7 @@ void readLD2410()
     if (radar.check() == MyLD2410::Response::DATA)
     {
         sensorData.radar_presence = radar.presenceDetected();
+        sensorData.presence = sensorData.radar_presence;
         sensorData.radar_available = true;
         if (sensorData.radar_presence)
         {

@@ -9,7 +9,7 @@ struct ConfigData
     int mqtt_port;
     bool mqtt_enabled;
     bool sensorless_mode;
-    //bool use_radar;
+    // bool use_radar;
 
     // Sensor enable flags (runtime configurable)
     bool use_dht;
@@ -36,6 +36,7 @@ struct SensorData
     bool radar_available;
     int radar_error_count;
     bool radar_presence;
+    bool presence; // Unified presence signal (PIR or LD2410)
 };
 
 extern ConfigData config;

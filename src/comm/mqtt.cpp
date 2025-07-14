@@ -210,7 +210,7 @@ void publishData()
     if (config.use_pir && sensorData.pir_available)
     {
         String topic = getTopicWithLocation(MQTT_TOPIC_MOTION);
-        mqttClient.publish(topic.c_str(), sensorData.motion ? "1" : "0");
+        mqttClient.publish(topic.c_str(), sensorData.presence ? "1" : "0");
     }
 
     if (config.use_ld2410 && sensorData.radar_available)
@@ -228,7 +228,7 @@ void publishData()
     DynamicJsonDocument doc(512);
     doc["temperature"] = sensorData.temperature;
     doc["humidity"] = sensorData.humidity;
-    doc["motion"] = sensorData.motion;
+    doc["motion"] = sensorData.presence;
     doc["luminescence"] = sensorData.lux;
     doc["radar_presence"] = sensorData.radar_presence;
     doc["relay_state"] = getRelayState();

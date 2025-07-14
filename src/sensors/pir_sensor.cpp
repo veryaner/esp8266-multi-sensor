@@ -33,6 +33,7 @@ void IRAM_ATTR handlePirInterrupt()
     {
         pirTriggered = true;
         sensorData.motion = true;
+        sensorData.presence = true;
         lastPirTrigger = millis();
 
         // Set LED blink flag (will be handled in main loop)
@@ -47,6 +48,7 @@ void readPIR()
 {
     int val = digitalRead(PIR_PIN);
     sensorData.motion = (val == HIGH);
+    sensorData.presence = sensorData.motion;
     sensorData.pir_available = true; // Assume always available unless you want to add error logic
     if (sensorData.motion != lastMotion)
     {
